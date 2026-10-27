@@ -1,0 +1,40 @@
+#!/bin/sh
+# Hook pre-commit: Formatter -> Linter -> Pruebas unitarias.
+# Corre en orden y se detiene en el primer control que falla. Un codigo de salida
+# distinto de 0 hace que git aborte el commit y los cambios quedan en el stage.
+# Instalacion: git config core.hooksPath .githooks
+
+PY=${PYTHON:-python}
+DIRS="src tests"
+export PYTHONIOENCODING=utf-8
+
+# Se valida lo que va a entrar al commit, no el directorio de trabajo: los cambios
+# sin agregar (y los archivos sin seguimiento) se apartan y se restauran al salir.
+ANTES=$(git stash list | wc -l)
+git stash push -q --keep-index --include-untracked -m "pre-commit" 2>/dev/null
+DESPUES=$(git stash list | wc -l)
+if [ "$DESPUES" -gt "$ANTES" ]; then
+    trap 'git stash pop -q' EXIT
+fi
+
+fallo() {
+    echo ""
+    echo "[pre-commit] COMMIT ABORTADO en el paso: $1"
+    echo "[pre-commit] $2"
+    exit 1
+}
+
+echo "[pre-commit] $(date '+%Y-%m-%d %H:%M:%S') - rama $(git symbolic-ref --short HEAD)"
+
+echo "[pre-commit] 1/3 Formatter (black --check)"
+$PY -m black --check $DIRS || fallo "Formatter" "Ejecutar: python -m black src tests y volver a agregar los archivos."
+
+echo "[pre-commit] 2/3 Linter (ruff check)"
+$PY -m ruff check $DIRS || fallo "Linter" "Corregir las observaciones indicadas arriba."
+
+echo "[pre-commit] 3/3 Pruebas unitarias + cobertura de ramas >= 80 % (pytest)"
+$PY -m pytest --cov --cov-report=term -p no:cacheprovider || fallo "Pruebas" "Hay tests en rojo o la cobertura quedo por debajo del umbral."
+
+echo ""
+echo "[pre-commit] OK: los tres controles pasaron, se registra el commit."
+exit 0

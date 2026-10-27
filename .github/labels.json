@@ -1,0 +1,13 @@
+[
+  {"name": "bug", "color": "d73a4a", "description": "Fallo funcional confirmado: el sistema no cumple lo especificado"},
+  {"name": "feature", "color": "0e8a16", "description": "Nueva capacidad de negocio"},
+  {"name": "technical-debt", "color": "fbca04", "description": "Funciona pero viola la DoD: complejidad, duplicacion, estilo, dependencias"},
+  {"name": "documentation", "color": "0075ca", "description": "README, contratos de API, diagramas o docstrings"},
+  {"name": "security", "color": "b60205", "description": "Vulnerabilidad en el codigo o CVE en una dependencia"},
+  {"name": "test", "color": "c5def5", "description": "Agrega o corrige pruebas sin cambiar codigo de produccion"},
+  {"name": "status: triage", "color": "ededed", "description": "Recien creado, falta confirmar y priorizar"},
+  {"name": "status: in-review", "color": "5319e7", "description": "PR abierto esperando revision por pares"},
+  {"name": "dod: blocked", "color": "000000", "description": "El PR no cumple al menos un criterio de la DoD"},
+  {"name": "dod: passed", "color": "2ea44f", "description": "Hook, cobertura y revision aprobados: listo para merge"},
+  {"name": "dod-exception", "color": "e99695", "description": "Se omite un criterio de la DoD con justificacion escrita del revisor"}
+]
